@@ -1,212 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCA - Backward Analytics</title>
-    <!-- Updated to latest stable Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; 
-            --slate-700: #334155; --slate-800: #1e293b;
-            --red-600: #dc2626; --blue-600: #2563eb;
-            --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%);
-        }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--slate-50); color: var(--slate-800); margin: 0; }
-        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
-        
-        /* Fixed Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        
-        /* Gemini Box with Dynamic Content Styling */
-        .gemini-box { 
-            background: var(--gemini-gradient); 
-            border-radius: 16px; 
-            padding: 2px; 
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(155, 81, 224, 0.2);
-        }
-        .gemini-content { 
-            background: white; 
-            padding: 1.5rem; 
-            border-radius: 14px; 
-            display: flex; 
-            gap: 1.5rem; 
-            align-items: flex-start; 
-        }
-        .ai-icon { 
-            width: 45px; height: 45px; border-radius: 12px; 
-            background: var(--gemini-gradient); 
-            color: white; display: flex; align-items: center; justify-content: center; 
-            flex-shrink: 0; font-size: 1.5rem;
-        }
-        .gemini-text h3 { margin: 0; font-size: 1.1rem; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .gemini-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 0.5rem; }
-        .summary-part b { color: var(--slate-800); }
-        .summary-part p { margin: 5px 0 0 0; font-size: 0.95rem; color: var(--slate-700); line-height: 1.5; }
-
-        /* Grid Layout */
-        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); overflow: hidden; }
-        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card-body { padding: 1.5rem; }
-
-        /* RCA Tags */
-        .rca-item { border-left: 4px solid var(--red-600); background: #fff1f2; padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
-        .rca-item.warning { border-left-color: #f59e0b; background: #fffbeb; }
-        
-        /* Table Styling */
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; background: var(--slate-100); font-size: 0.75rem; color: #64748b; }
-        td { padding: 12px; border-bottom: 1px solid var(--slate-200); font-size: 0.9rem; }
-        .variance-neg { color: var(--red-600); font-weight: 600; }
-        
-        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--slate-200); cursor: pointer; background: white; font-weight: 500; transition: 0.2s; }
-        .btn:hover { background: var(--slate-50); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Root Cause Analysis - Backward Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="animations.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <button onclick="window.history.back()" class="btn">← Back to Dashboard</button>
-            <h1 style="margin:0; font-size: 1.75rem;">Root Cause Analysis</h1>
+<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
+  <nav></nav>
+
+  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%;">
+    <div class="space-y-8 animate-fadeIn">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <button onclick="history.back()" class="btn btn-secondary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </button>
+        
+        <button onclick="showGeminiSummary()" class="btn" style="background: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%); display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-weight: 600;">
+          <svg style="width: 20px; height: 20px;" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          Gemini Summary
+        </button>
+      </div>
+
+      <div id="analysisHeader"></div>
+
+      <!-- Gemini Summary Modal -->
+      <div id="geminiModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; max-width: 900px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+          <div style="background: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%); padding: 1.5rem; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg style="width: 28px; height: 28px; color: white;" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <h2 style="margin: 0; color: white; font-size: 1.5rem; font-weight: 700;">Gemini AI Analysis</h2>
+            </div>
+            <button onclick="closeGeminiModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;">×</button>
+          </div>
+          
+          <div style="padding: 2rem;">
+            <div id="geminiLoading" style="text-align: center; padding: 3rem;">
+              <div style="display: inline-block; width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #4285f4; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+              <p style="margin-top: 1rem; color: #64748b;">Analyzing project data...</p>
+            </div>
+            
+            <div id="geminiContent" style="display: none;">
+              <!-- Project Overview -->
+              <div style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 0.5rem 0; color: #991b1b; font-size: 1.125rem; font-weight: 700;">📊 Project Overview</h3>
+                <div id="geminiOverview" style="color: #7f1d1d; line-height: 1.6;"></div>
+              </div>
+
+              <!-- Problems Summary -->
+              <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 1.125rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="background: #fee2e2; color: #991b1b; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">⚠️</span>
+                  Identified Problems
+                </h3>
+                <div id="geminiProblems" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+              </div>
+
+              <!-- Root Causes -->
+              <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 1.125rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="background: #dbeafe; color: #1e40af; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">🔍</span>
+                  Root Causes Analysis
+                </h3>
+                <div id="geminiCauses" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+              </div>
+
+              <!-- Delays Breakdown -->
+              <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 1.125rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="background: #fef3c7; color: #92400e; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px;">⏱️</span>
+                  Delay Impact Analysis
+                </h3>
+                <div id="geminiDelays" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+              </div>
+
+              <!-- Recommendations -->
+              <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 1.5rem; border-radius: 12px;">
+                <h3 style="margin: 0 0 0.5rem 0; color: #1e40af; font-size: 1.125rem; font-weight: 700;">💡 AI Recommendations</h3>
+                <div id="geminiRecommendations" style="color: #1e3a8a; line-height: 1.6;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+            <h2 class="card-title" style="color: var(--red-800);">Delay Timeline</h2>
+          </div>
+          <div class="card-body" id="timelineViz"></div>
         </div>
 
-        <!-- Gemini Intelligence Box -->
-        <div class="gemini-box">
-            <div class="gemini-content">
-                <div class="ai-icon">✦</div>
-                <div class="gemini-text" style="flex: 1;">
-                    <h3>Gemini Project Intelligence Summary</h3>
-                    <div class="gemini-summary">
-                        <div class="summary-part">
-                            <b>Project Status:</b>
-                            <p>The program has encountered a total <b>14-day variance</b> from the original baseline. While initial phases started on track, technical friction emerged during the transition from Design to Development.</p>
-                        </div>
-                        <div class="summary-part">
-                            <b>Primary Delay Cause:</b>
-                            <p>The critical path was impacted primarily by a <b>Resource Bottleneck</b> in the Development stage (+8 days) and <b>Logic Refactoring</b> during QA (+4 days), necessitating a schedule re-baseline.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+            <h2 class="card-title" style="color: var(--red-800);">Root Causes</h2>
+          </div>
+          <div class="card-body" id="rootCauses"></div>
         </div>
+      </div>
 
-        <div class="grid">
-            <!-- Timeline Chart -->
-            <div class="card" style="grid-column: span 8;">
-                <div class="card-header" style="color: var(--red-600)">Delay Trajectory (Baseline vs Actual)</div>
-                <div class="card-body">
-                    <canvas id="rcaChart" height="140"></canvas>
-                </div>
-            </div>
-
-            <!-- Side Drivers -->
-            <div class="card" style="grid-column: span 4;">
-                <div class="card-header">Major Impact Drivers</div>
-                <div class="card-body">
-                    <div class="rca-item">
-                        <strong>Development Resources</strong><br>
-                        <small>+8 Days (Bottleneck Impact)</small>
-                    </div>
-                    <div class="rca-item" style="border-left-color: #9b51e0; background: #f5f3ff;">
-                        <strong>QA Refactoring</strong><br>
-                        <small>+4 Days (Quality Spillover)</small>
-                    </div>
-                    <div class="rca-item warning">
-                        <strong>Scope Creep</strong><br>
-                        <small>+2 Days (Design Phase)</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Task Analysis Table -->
-            <div class="card" style="grid-column: span 12;">
-                <div class="card-header">Backward Task Tracing & Source Logic</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Development Stage</th>
-                            <th>Baseline Duration</th>
-                            <th>Actual Duration</th>
-                            <th>Variance</th>
-                            <th>Root Cause Category (AI Identified)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>Design Phase</b></td>
-                            <td>10 Days</td>
-                            <td>12 Days</td>
-                            <td class="variance-neg">+2 Days</td>
-                            <td>Scope Creep (Late Requirement Changes)</td>
-                        </tr>
-                        <tr>
-                            <td><b>Development</b></td>
-                            <td>20 Days</td>
-                            <td>28 Days</td>
-                            <td class="variance-neg">+8 Days</td>
-                            <td>Resource Bottleneck (Key Talent Unavailable)</td>
-                        </tr>
-                        <tr>
-                            <td><b>QA Testing</b></td>
-                            <td>5 Days</td>
-                            <td>9 Days</td>
-                            <td class="variance-neg">+4 Days</td>
-                            <td>Logic Refactoring (Complexity Underestimated)</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr style="background: #f8fafc; font-weight: bold;">
-                            <td colspan="3" style="text-align: right;">Total Program Delay:</td>
-                            <td class="variance-neg">+14 Days</td>
-                            <td>-</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+      <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+          <h2 class="card-title">Detailed Task Analysis</h2>
         </div>
+        <div class="card-body" id="taskAnalysis"></div>
+      </div>
     </div>
+  </main>
 
-    <script>
-        const ctx = document.getElementById('rcaChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                datasets: [
-                    { 
-                        label: 'Baseline Schedule', 
-                        data: [2, 5, 8, 12, 15], 
-                        borderColor: '#cbd5e1', 
-                        borderDash: [5,5],
-                        tension: 0.1 
-                    },
-                    { 
-                        label: 'Actual Progress', 
-                        data: [2, 7, 13, 22, 29], 
-                        borderColor: '#dc2626', 
-                        borderWidth: 3,
-                        pointBackgroundColor: '#dc2626',
-                        tension: 0.1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top', align: 'end' }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: { display: true, text: 'Cumulative Days' }
-                    }
-                }
-            }
-        });
-    </script>
+  <footer>
+    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
+    &copy; 2024 Corporate Productivity Analytics
+  </footer>
+
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script src="analysis.js"></script>
 </body>
 </html>
-
