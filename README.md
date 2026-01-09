@@ -139,11 +139,6 @@ backward-analytics/
 3. **Root Cause Analysis** - Finds why delays happened
 4. **Recommendations** - Suggests improvements
 
-### **Example Gemini Prompt:**
-```javascript
-"Analyze this delayed project: Project has X days delay, 
-Y delayed tasks. Main issues: Z. Provide recommendations."
-```
 
 ## 📈 **Performance**
 
