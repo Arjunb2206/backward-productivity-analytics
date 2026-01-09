@@ -1,264 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Details - Backward Analytics</title>
-  <style>
-    /* Global & Variables */
-    :root {
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-600: #475569;
-      --slate-700: #334155;
-      --slate-800: #1e293b;
-      --blue-600: #2563eb;
-      --green-600: #16a34a;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - Backward Analytics</title>
+    <style>
+        :root {
+            --slate-50: #f8fafc; --slate-200: #e2e8f0; --slate-800: #1e293b;
+            --blue-600: #2563eb; --green-600: #16a34a;
+            --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--slate-50); margin: 0; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        .gemini-box { background: var(--gemini-gradient); border-radius: 12px; padding: 2px; margin-bottom: 2rem; }
+        .gemini-content { background: white; padding: 1.5rem; border-radius: 10px; display: flex; gap: 1rem; align-items: center; }
+        
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: bold; background: #f8fafc; }
+        .card-body { padding: 1.5rem; }
 
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      margin: 0;
-      color: var(--slate-800);
-      line-height: 1.5;
-    }
+        .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; }
+        .status-progress { background: #dbeafe; color: #1e40af; }
 
-    /* Layout Utilities */
-    .space-y-8 > * + * { margin-top: 2rem; }
-    .space-y-6 > * + * { margin-top: 1.5rem; }
-    .flex { display: flex; }
-    .space-x-3 > * + * { margin-left: 0.75rem; }
-    
-    .grid { display: grid; gap: 2rem; }
-    .grid-cols-1 { grid-template-columns: 1fr; }
-    
-    @media (min-width: 1024px) {
-      .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
-      .lg\:col-span-8 { grid-column: span 8 / span 8; }
-      .lg\:col-span-4 { grid-column: span 4 / span 4; }
-    }
-
-    /* Components */
-    .card {
-      background: white;
-      border-radius: 0.75rem;
-      border: 1px solid var(--slate-200);
-      overflow: hidden;
-    }
-
-    .card-header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--slate-200);
-    }
-
-    .card-title {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .card-body { padding: 1.5rem; }
-
-    .btn {
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-
-    .btn-secondary {
-      background: white;
-      border-color: var(--slate-200);
-      color: var(--slate-700);
-    }
-
-    .btn-secondary:hover { background: var(--slate-100); }
-
-    /* Task List Styling */
-    .task-item {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--slate-100);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .status-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    /* Animations */
-    .animate-fadeIn {
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    footer {
-      padding: 1.5rem;
-      background: white;
-      border-top: 1px solid var(--slate-200);
-      text-align: center;
-      font-size: 0.875rem;
-      color: var(--slate-600);
-    }
-
-    .footer-status { color: var(--green-600); font-weight: bold; }
-    
-    .progress-bar {
-      height: 8px;
-      background: var(--slate-200);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-top: 0.5rem;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--blue-600);
-    }
-  </style>
+        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: var(--blue-600); }
+        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: var(--slate-800); color: white; cursor: pointer; }
+    </style>
 </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
-  
-  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%; box-sizing: border-box;">
-    <div class="space-y-8 animate-fadeIn">
-      
-      <!-- Top Navigation Row -->
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-        <button onclick="navigateTo('dashboard.html')" class="btn btn-secondary">
-          <svg style="width:20px; height:20px; margin-right:8px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Dashboard
-        </button>
-        <div id="projectActions" class="flex space-x-3">
-            <button class="btn btn-secondary">Export PDF</button>
-            <button class="btn" style="background: var(--blue-600); color: white;">Edit Project</button>
-        </div>
-      </div>
-
-      <!-- Project Header -->
-      <div id="projectHeader">
-          <h1 style="margin: 0 0 0.5rem 0;">Project Alpha: Cloud Migration</h1>
-          <span class="status-badge" style="background: #dcfce7; color: #166534;">In Progress</span>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Main Content -->
-        <div class="lg:col-span-8 space-y-6">
-          <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-              <h2 class="card-title">Task Breakdown</h2>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <button onclick="location.href='rca.html'" style="background:none; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; cursor:pointer;">← To Root Cause Analysis</button>
+            <div style="text-align: right;">
+                <h1 style="margin:0; font-size: 1.5rem;">Project Alpha: Cloud Infrastructure</h1>
+                <span class="status-pill status-progress">IN PROGRESS</span>
             </div>
-            <div id="taskList" style="border-top: 1px solid var(--slate-100);">
-                <!-- Tasks will be injected here -->
-            </div>
-          </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="lg:col-span-4 space-y-6">
-          <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-              <h3 class="card-title">Project Info</h3>
+        <!-- Gemini Insight Box -->
+        <div class="gemini-box">
+            <div class="gemini-content">
+                <div style="font-size: 24px;">✨</div>
+                <div>
+                    <h3 style="margin:0; color: #1e293b;">Gemini Predictive Summary</h3>
+                    <p style="margin:5px 0 0 0; color: #64748b;">Current velocity is 1.2x. If the "Frontend Bridge" starts by tomorrow, you will recover 3 days of the existing delay. <strong>Recommended Action:</strong> Approve overtime for QA team.</p>
+                </div>
             </div>
-            <div class="card-body" id="projectInfo">
-                <!-- Info will be injected here -->
-            </div>
-          </div>
-
-          <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-              <h3 class="card-title">Overall Progress</h3>
-            </div>
-            <div class="card-body" id="progressInfo">
-                <!-- Progress will be injected here -->
-            </div>
-          </div>
         </div>
-      </div>
+
+        <div class="grid">
+            <!-- Main Content -->
+            <div class="card" style="grid-column: span 8;">
+                <div class="card-header">Task Breakdown & Ownership</div>
+                <div class="card-body">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 15px 0;"><strong>Cloud Security Setup</strong><br><small>Lead: Sarah Connor</small></td>
+                            <td style="text-align: right;"><span class="status-pill" style="background:#dcfce7; color:#166534">COMPLETED</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 15px 0;"><strong>Multi-region Load Balancing</strong><br><small>Lead: James Smith</small></td>
+                            <td style="text-align: right;"><span class="status-pill status-progress">IN PROGRESS</span></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 15px 0;"><strong>PostgreSQL Migration</strong><br><small>Lead: Dave Miller</small></td>
+                            <td style="text-align: right;"><span class="status-pill" style="background:#fee2e2; color:#991b1b">DELAYED</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div style="grid-column: span 4;">
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="card-header">Overall Progress</div>
+                    <div class="card-body">
+                        <div style="font-size: 2rem; font-weight: bold;">68%</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 68%;"></div></div>
+                        <small style="color: #64748b;">32 of 48 tasks completed</small>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Project Info</div>
+                    <div class="card-body" style="font-size: 0.9rem;">
+                        <div style="margin-bottom: 10px;"><strong>Manager:</strong> Michael Scott</div>
+                        <div style="margin-bottom: 10px;"><strong>Deadline:</strong> Dec 24, 2024</div>
+                        <div style="margin-bottom: 10px;"><strong>Budget:</strong> <span style="color:var(--green-600)">$120,000 / $150k</span></div>
+                        <button class="btn" style="width: 100%; margin-top: 10px;">Download Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </main>
-
-  <footer>
-    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
-    &copy; 2024 Corporate Productivity Analytics
-  </footer>
-
-  <script>
-    // NAVIGATION LOGIC
-    function navigateTo(page) {
-        console.log("Navigating to:", page);
-        // window.location.href = page; // Uncomment for actual use
-        alert("Navigation triggered to: " + page);
-    }
-
-    // MOCK DATA INJECTION
-    document.addEventListener('DOMContentLoaded', () => {
-        // 1. Populate Task List
-        const tasks = [
-            { name: "Database Schema Design", status: "Completed", color: "#dcfce7", textColor: "#166534" },
-            { name: "API Authentication Layer", status: "In Progress", color: "#dbeafe", textColor: "#1e40af" },
-            { name: "Frontend Component Library", status: "In Progress", color: "#dbeafe", textColor: "#1e40af" },
-            { name: "Unit Testing", status: "Pending", color: "#f1f5f9", textColor: "#475569" }
-        ];
-
-        const taskList = document.getElementById('taskList');
-        taskList.innerHTML = tasks.map(task => `
-            <div class="task-item">
-                <span style="font-weight: 500;">${task.name}</span>
-                <span class="status-badge" style="background: ${task.color}; color: ${task.textColor};">
-                    ${task.status}
-                </span>
-            </div>
-        `).join('');
-
-        // 2. Populate Project Info
-        const info = document.getElementById('projectInfo');
-        info.innerHTML = `
-            <div style="margin-bottom: 1rem;">
-                <label style="font-size: 0.75rem; color: var(--slate-600); text-transform: uppercase;">Project Manager</label>
-                <div style="font-weight: 600;">Sarah Jenkins</div>
-            </div>
-            <div style="margin-bottom: 1rem;">
-                <label style="font-size: 0.75rem; color: var(--slate-600); text-transform: uppercase;">Deadline</label>
-                <div style="font-weight: 600;">Dec 15, 2024</div>
-            </div>
-            <div>
-                <label style="font-size: 0.75rem; color: var(--slate-600); text-transform: uppercase;">Budget Allocation</label>
-                <div style="font-weight: 600; color: var(--green-600);">$45,200 / $50,000</div>
-            </div>
-        `;
-
-        // 3. Populate Progress Info
-        const progress = document.getElementById('progressInfo');
-        const percentage = 68;
-        progress.innerHTML = `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                <span style="font-weight: 600;">Completion Rate</span>
-                <span style="font-weight: 600; color: var(--blue-600);">${percentage}%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${percentage}%"></div>
-            </div>
-            <p style="font-size: 0.875rem; color: var(--slate-600); margin-top: 1rem;">
-                Project is 4 days ahead of schedule.
-            </p>
-        `;
-    });
-  </script>
 </body>
 </html>
