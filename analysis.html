@@ -4,87 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCA - Backward Analytics</title>
-    <!-- Corrected Chart.js Import -->
+    <!-- Updated to latest stable Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --slate-50: #f8fafc; --slate-200: #e2e8f0; --slate-800: #1e293b;
+            --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; 
+            --slate-700: #334155; --slate-800: #1e293b;
             --red-600: #dc2626; --blue-600: #2563eb;
             --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%);
-            --gemini-soft: linear-gradient(135deg, rgba(66, 133, 244, 0.1), rgba(155, 81, 224, 0.1));
         }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--slate-50); color: var(--slate-800); margin: 0; padding-bottom: 50px; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--slate-50); color: var(--slate-800); margin: 0; }
+        .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
         
-        /* Gemini Box Styling */
-        .gemini-container { 
-            background: white; 
+        /* Fixed Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        
+        /* Gemini Box with Dynamic Content Styling */
+        .gemini-box { 
+            background: var(--gemini-gradient); 
             border-radius: 16px; 
             padding: 2px; 
-            background: var(--gemini-gradient); 
             margin-bottom: 2rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(155, 81, 224, 0.2);
         }
-        .gemini-inner { 
+        .gemini-content { 
             background: white; 
-            border-radius: 14px; 
             padding: 1.5rem; 
+            border-radius: 14px; 
             display: flex; 
             gap: 1.5rem; 
             align-items: flex-start; 
         }
-        .ai-avatar { 
-            width: 48px; height: 48px; border-radius: 50%; 
+        .ai-icon { 
+            width: 45px; height: 45px; border-radius: 12px; 
             background: var(--gemini-gradient); 
-            display: flex; align-items: center; justify-content: center; 
-            color: white; font-size: 1.5rem; flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(155, 81, 224, 0.4);
+            color: white; display: flex; align-items: center; justify-content: center; 
+            flex-shrink: 0; font-size: 1.5rem;
         }
-        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; width: 100%; }
-        .summary-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 700; margin-bottom: 4px; }
-        .summary-text { font-size: 0.95rem; line-height: 1.6; color: #334155; }
+        .gemini-text h3 { margin: 0; font-size: 1.1rem; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .gemini-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 0.5rem; }
+        .summary-part b { color: var(--slate-800); }
+        .summary-part p { margin: 5px 0 0 0; font-size: 0.95rem; color: var(--slate-700); line-height: 1.5; }
 
-        /* Grid and Cards */
+        /* Grid Layout */
         .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: bold; background: #fafafa; }
+        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); overflow: hidden; }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .card-body { padding: 1.5rem; }
 
+        /* RCA Tags */
         .rca-item { border-left: 4px solid var(--red-600); background: #fff1f2; padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
         .rca-item.warning { border-left-color: #f59e0b; background: #fffbeb; }
         
+        /* Table Styling */
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
-        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        th { text-align: left; padding: 12px; background: var(--slate-100); font-size: 0.75rem; color: #64748b; }
+        td { padding: 12px; border-bottom: 1px solid var(--slate-200); font-size: 0.9rem; }
+        .variance-neg { color: var(--red-600); font-weight: 600; }
         
-        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid var(--slate-200); cursor: pointer; background: white; font-weight: 500; transition: all 0.2s; }
-        .btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-        
-        .badge-red { background: #fee2e2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--slate-200); cursor: pointer; background: white; font-weight: 500; transition: 0.2s; }
+        .btn:hover { background: var(--slate-50); }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div class="header">
             <button onclick="window.history.back()" class="btn">← Back to Dashboard</button>
-            <h2 style="margin:0; font-weight: 800; color: var(--slate-800);">Root Cause Analysis</h2>
+            <h1 style="margin:0; font-size: 1.75rem;">Root Cause Analysis</h1>
         </div>
 
-        <!-- NEW: Gemini Intelligence Box (Summary & Delay) -->
-        <div class="gemini-container">
-            <div class="gemini-inner">
-                <div class="ai-avatar">✦</div>
-                <div style="flex-grow: 1;">
-                    <h3 style="margin: 0 0 1rem 0; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.4rem;">Gemini Project Insights</h3>
-                    
-                    <div class="summary-grid">
-                        <div>
-                            <div class="summary-label">Project Summary</div>
-                            <p class="summary-text"><strong>Project "Titan Sync"</strong> is a legacy modernization initiative aimed at migrating on-premise data to the cloud. Currently, the project is 68% complete but has exceeded the baseline timeline by 14 days due to integration friction.</p>
+        <!-- Gemini Intelligence Box -->
+        <div class="gemini-box">
+            <div class="gemini-content">
+                <div class="ai-icon">✦</div>
+                <div class="gemini-text" style="flex: 1;">
+                    <h3>Gemini Project Intelligence Summary</h3>
+                    <div class="gemini-summary">
+                        <div class="summary-part">
+                            <b>Project Status:</b>
+                            <p>The program has encountered a total <b>14-day variance</b> from the original baseline. While initial phases started on track, technical friction emerged during the transition from Design to Development.</p>
                         </div>
-                        <div>
-                            <div class="summary-label">Primary Cause of Delay</div>
-                            <p class="summary-text">A <strong>Schema Mismatch</strong> in the Legacy API (discovered Oct 12) caused a cascading stall. This forced a manual refactoring of the Integration Layer, adding 6 days of unplanned development and 4 days of regression testing.</p>
+                        <div class="summary-part">
+                            <b>Primary Delay Cause:</b>
+                            <p>The critical path was impacted primarily by a <b>Resource Bottleneck</b> in the Development stage (+8 days) and <b>Logic Refactoring</b> during QA (+4 days), necessitating a schedule re-baseline.</p>
                         </div>
                     </div>
                 </div>
@@ -92,88 +94,117 @@
         </div>
 
         <div class="grid">
-            <!-- Left: Timeline -->
+            <!-- Timeline Chart -->
             <div class="card" style="grid-column: span 8;">
                 <div class="card-header" style="color: var(--red-600)">Delay Trajectory (Baseline vs Actual)</div>
                 <div class="card-body">
-                    <canvas id="rcaChart" style="max-height: 300px;"></canvas>
+                    <canvas id="rcaChart" height="140"></canvas>
                 </div>
             </div>
 
-            <!-- Right: Root Causes -->
+            <!-- Side Drivers -->
             <div class="card" style="grid-column: span 4;">
-                <div class="card-header">Top Delay Drivers</div>
+                <div class="card-header">Major Impact Drivers</div>
                 <div class="card-body">
                     <div class="rca-item">
-                        <strong>API Documentation</strong><br>
-                        <small>+6 Days (Primary Source)</small>
+                        <strong>Development Resources</strong><br>
+                        <small>+8 Days (Bottleneck Impact)</small>
+                    </div>
+                    <div class="rca-item" style="border-left-color: #9b51e0; background: #f5f3ff;">
+                        <strong>QA Refactoring</strong><br>
+                        <small>+4 Days (Quality Spillover)</small>
                     </div>
                     <div class="rca-item warning">
-                        <strong>Third Party Latency</strong><br>
-                        <small>+4 Days (Secondary Source)</small>
-                    </div>
-                    <div class="rca-item warning">
-                        <strong>QA Environment Downtime</strong><br>
-                        <small>+2 Days</small>
+                        <strong>Scope Creep</strong><br>
+                        <small>+2 Days (Design Phase)</small>
                     </div>
                 </div>
             </div>
 
-            <!-- Bottom: Task Analysis -->
+            <!-- Task Analysis Table -->
             <div class="card" style="grid-column: span 12;">
-                <div class="card-header">Backward Task Tracing</div>
+                <div class="card-header">Backward Task Tracing & Source Logic</div>
                 <table>
                     <thead>
-                        <tr><th>Stage</th><th>Baseline</th><th>Actual</th><th>Variance</th><th>Root Cause Category</th></tr>
+                        <tr>
+                            <th>Development Stage</th>
+                            <th>Baseline Duration</th>
+                            <th>Actual Duration</th>
+                            <th>Variance</th>
+                            <th>Root Cause Category (AI Identified)</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Design Phase</td><td>10d</td><td>12d</td><td><span class="badge-red">+2d</span></td><td>Scope Creep (Late Stakeholder Input)</td></tr>
-                        <tr><td>Development</td><td>20d</td><td>28d</td><td><span class="badge-red">+8d</span></td><td>Technical Debt / API Refactoring</td></tr>
-                        <tr><td>QA Testing</td><td>5d</td><td>9d</td><td><span class="badge-red">+4d</span></td><td>Logic Refactoring / Bug Leakage</td></tr>
+                        <tr>
+                            <td><b>Design Phase</b></td>
+                            <td>10 Days</td>
+                            <td>12 Days</td>
+                            <td class="variance-neg">+2 Days</td>
+                            <td>Scope Creep (Late Requirement Changes)</td>
+                        </tr>
+                        <tr>
+                            <td><b>Development</b></td>
+                            <td>20 Days</td>
+                            <td>28 Days</td>
+                            <td class="variance-neg">+8 Days</td>
+                            <td>Resource Bottleneck (Key Talent Unavailable)</td>
+                        </tr>
+                        <tr>
+                            <td><b>QA Testing</b></td>
+                            <td>5 Days</td>
+                            <td>9 Days</td>
+                            <td class="variance-neg">+4 Days</td>
+                            <td>Logic Refactoring (Complexity Underestimated)</td>
+                        </tr>
                     </tbody>
+                    <tfoot>
+                        <tr style="background: #f8fafc; font-weight: bold;">
+                            <td colspan="3" style="text-align: right;">Total Program Delay:</td>
+                            <td class="variance-neg">+14 Days</td>
+                            <td>-</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('rcaChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                    datasets: [
-                        { 
-                            label: 'Baseline (Target)', 
-                            data: [2, 5, 8, 12, 15], 
-                            borderColor: '#cbd5e1', 
-                            borderDash: [5,5],
-                            tension: 0.3,
-                            fill: false
-                        },
-                        { 
-                            label: 'Actual Progress (Delayed)', 
-                            data: [2, 7, 13, 22, 29], 
-                            borderColor: '#dc2626', 
-                            borderWidth: 3,
-                            backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                            fill: true,
-                            tension: 0.3
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom' }
+        const ctx = document.getElementById('rcaChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                datasets: [
+                    { 
+                        label: 'Baseline Schedule', 
+                        data: [2, 5, 8, 12, 15], 
+                        borderColor: '#cbd5e1', 
+                        borderDash: [5,5],
+                        tension: 0.1 
                     },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Total Days Spent' } }
+                    { 
+                        label: 'Actual Progress', 
+                        data: [2, 7, 13, 22, 29], 
+                        borderColor: '#dc2626', 
+                        borderWidth: 3,
+                        pointBackgroundColor: '#dc2626',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top', align: 'end' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Cumulative Days' }
                     }
                 }
-            });
+            }
         });
     </script>
 </body>
