@@ -75,26 +75,28 @@ function renderTaskTable(user) {
       .join(', ') || 'None';
     
     const statusBadge = getStatusBadgeClass(task.status);
+    const isDelayed = task.actualEndDate && new Date(task.actualEndDate) > new Date(task.plannedEndDate);
+    const rowStyle = isDelayed ? 'background: #fef2f2;' : '';
     
     return `
-      <tr>
-        <td>
-          <div class="font-medium text-slate-900">${escapeHtml(task.name)}</div>
-          <div class="text-xs text-slate-400">Depends on: ${escapeHtml(dependencies)}</div>
+      <tr style="${rowStyle} border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 1rem;">
+          <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.25rem;">${escapeHtml(task.name)}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">Dependencies: ${escapeHtml(dependencies)}</div>
         </td>
-        <td class="text-sm text-slate-600">${escapeHtml(task.assignedDept)}</td>
-        <td class="text-sm">
+        <td style="padding: 1rem; color: #64748b;">${escapeHtml(task.assignedDept)}</td>
+        <td style="padding: 1rem;">
           <span class="badge ${statusBadge}">${escapeHtml(task.status)}</span>
         </td>
-        <td class="text-sm text-slate-600">${task.plannedEndDate}</td>
+        <td style="padding: 1rem; color: #64748b;">${task.plannedEndDate}</td>
         ${user.role !== Role.VIEWER ? `
-          <td class="text-sm font-medium">
+          <td style="padding: 1rem;">
             ${task.status !== TaskStatus.COMPLETED ? `
-              <button onclick="openCompleteModal('${task.id}')" class="text-blue-600 hover:text-blue-900">
+              <button onclick="openCompleteModal('${task.id}')" style="background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.875rem;">
                 Mark Complete
               </button>
             ` : `
-              <span class="text-slate-300">Done</span>
+              <span style="color: #16a34a; font-weight: 600;">✓ Done</span>
             `}
           </td>
         ` : ''}
@@ -112,10 +114,15 @@ function renderTaskTable(user) {
 function renderProjectSummary() {
   document.getElementById('projectDescription').textContent = currentProject.description;
   document.getElementById('projectPlannedEnd').textContent = currentProject.plannedEndDate;
+  document.getElementById('projectDepartment').textContent = currentProject.department;
+  document.getElementById('projectBudget').textContent = '$' + currentProject.budget.toLocaleString();
   
   const actualEndEl = document.getElementById('projectActualEnd');
-  actualEndEl.textContent = currentProject.actualEndDate || 'Pending';
-  actualEndEl.className = `text-sm font-bold ${currentProject.status === 'Delayed' ? 'text-red-600' : 'text-green-600'}`;
+  actualEndEl.textContent = currentProject.actualEndDate || 'In Progress';
+  actualEndEl.className = `text-sm font-bold ${currentProject.status === 'Delayed' ? 'text-red-600' : currentProject.status === 'Completed' ? 'text-green-600' : 'text-blue-600'}`;
+  actualEndEl.style.fontSize = '1.125rem';
+  actualEndEl.style.fontWeight = '600';
+  actualEndEl.style.margin = '0';
 }
 
 function renderMetrics() {
@@ -127,7 +134,7 @@ function renderMetrics() {
   document.getElementById('completionRate').textContent = completionRate + '%';
   document.getElementById('progressBar').style.width = completionRate + '%';
   document.getElementById('completionText').textContent = 
-    `${completedTasks} of ${currentTasks.length} sub-tasks finalized`;
+    `${completedTasks} of ${currentTasks.length} tasks completed`;
 }
 
 function openCompleteModal(taskId) {
