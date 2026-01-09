@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Backward Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="animations.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
+  <!-- Navigation Bar -->
+  <nav></nav>
+
+  <!-- Main Content -->
+  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%;">
+    <div class="space-y-8 animate-fadeIn">
+      <header style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--slate-900); letter-spacing: -0.025em;">Portfolio Health Dashboard</h1>
+          <p style="color: var(--slate-500); margin-top: 0.5rem; font-size: 1rem;">Global summary of project execution and root cause trends.</p>
+        </div>
+        <button 
+          id="createProjectBtn"
+          onclick="showCreateProjectModal()"
+          class="btn btn-primary"
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create Project</span>
+        </button>
+      </header>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+          <p class="stat-label" style="color: rgba(255, 255, 255, 0.9);">Total Projects</p>
+          <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem;">
+            <span id="totalProjects" class="stat-value" style="color: white;">0</span>
+            <span class="stat-suffix" style="color: rgba(255, 255, 255, 0.9);">Tracking</span>
+          </div>
+        </div>
+        <div class="stat-card" style="border-color: var(--red-200); background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+          <p class="stat-label" style="color: var(--red-700);">Delayed Projects</p>
+          <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem;">
+            <span id="delayedProjects" class="stat-value" style="color: var(--red-700);">0</span>
+            <span class="stat-suffix" style="color: var(--red-600);">Slipped</span>
+          </div>
+        </div>
+        <div class="stat-card" style="border-color: var(--amber-200); background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+          <p class="stat-label" style="color: var(--amber-800);">Overdue Tasks</p>
+          <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem;">
+            <span id="overdueTasks" class="stat-value" style="color: var(--amber-800);">0</span>
+            <span class="stat-suffix" style="color: var(--amber-700);">Blocked</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Project List and Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Project Registry -->
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+            <h2 class="card-title" style="font-size: 1.25rem;">Project Registry</h2>
+            <span style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">Total: <span id="projectCount">0</span></span>
+          </div>
+          <div id="projectList" style="border-top: 1px solid var(--slate-100); max-height: 600px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Delay Attribution Chart -->
+        <div class="card" style="padding: 2rem; display: flex; flex-direction: column; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <h2 class="card-title mb-2" style="font-size: 1.25rem;">Delay Attribution</h2>
+          <p style="font-size: 0.875rem; color: var(--slate-500); margin-bottom: 2rem;">Aggregated root causes across all delayed projects.</p>
+          <div id="delayChart" class="chart-container"></div>
+          <div id="delayLegend" class="chart-legend"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
+    &copy; 2024 Corporate Productivity Analytics
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
