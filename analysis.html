@@ -3,189 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Root Cause Analysis - Backward Analytics</title>
-    <!-- Chart.js CDN -->
+    <title>RCA - Backward Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
     <style>
         :root {
-            --slate-50: #f8fafc;
-            --slate-200: #e2e8f0;
-            --slate-700: #334155;
-            --red-800: #991b1b;
-            --blue-600: #2563eb;
+            --slate-50: #f8fafc; --slate-200: #e2e8f0; --slate-800: #1e293b;
+            --red-600: #dc2626; --blue-600: #2563eb;
+            --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%);
         }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            color: var(--slate-700);
-        }
-
-        /* Layout Classes */
-        .grid { display: grid; gap: 2rem; }
-        .grid-cols-1 { grid-template-columns: 1fr; }
-        @media (min-width: 1024px) { .grid-cols-2 { grid-template-columns: 1fr 1fr; } }
-
-        .card {
-            background: white;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            border: 1px solid var(--slate-200);
-        }
-
-        .card-header { padding: 1rem 1.5rem; font-weight: bold; }
+        body { font-family: 'Inter', sans-serif; background: var(--slate-50); color: var(--slate-800); margin: 0; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* Gemini Box */
+        .gemini-box { background: var(--gemini-gradient); border-radius: 12px; padding: 2px; margin-bottom: 2rem; }
+        .gemini-content { background: white; padding: 1.5rem; border-radius: 10px; display: flex; gap: 1rem; align-items: center; }
+        .ai-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--gemini-gradient); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        
+        /* Grid and Cards */
+        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: bold; }
         .card-body { padding: 1.5rem; }
 
-        .btn {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid var(--slate-200);
-            background: white;
-        }
-
-        .btn-secondary:hover { background: #f1f5f9; }
-
-        footer {
-            padding: 1rem;
-            text-align: center;
-            background: white;
-            border-top: 1px solid var(--slate-200);
-            font-size: 0.875rem;
-        }
-
-        .footer-status { color: #10b981; font-weight: bold; }
-
-        /* Animation */
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .rca-item { border-left: 4px solid var(--red-600); background: #fef2f2; padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
         
-        .cause-tag {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 0.25rem 0.75rem;
-            border-radius: 99px;
-            font-size: 0.875rem;
-            margin: 0.25rem;
-            display: inline-block;
-        }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; background: #f1f5f9; font-size: 0.8rem; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .btn { padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--slate-200); cursor: pointer; background: white; }
     </style>
 </head>
-<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
-
-  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%; box-sizing: border-box;">
-    <div class="space-y-8 animate-fadeIn">
-      
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <button onclick="window.history.back()" class="btn btn-secondary">
-          <svg style="width:20px; height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back
-        </button>
-        <div id="analysisHeader">
-            <h1 style="margin:0">RCA: Project "Alpha" Delay</h1>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2">
-        <!-- Chart Section -->
-        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
-            <h2 class="card-title" style="color: var(--red-800); margin:0;">Delay Timeline (Days)</h2>
-          </div>
-          <div class="card-body">
-              <canvas id="delayChart" height="200"></canvas>
-          </div>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <button onclick="window.history.back()" class="btn">← Back</button>
+            <h1 style="margin:0">Root Cause Analysis</h1>
         </div>
 
-        <!-- Root Causes Section -->
-        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
-            <h2 class="card-title" style="color: var(--red-800); margin:0;">Identified Root Causes</h2>
-          </div>
-          <div class="card-body" id="rootCauses">
-              <!-- JS will populate this -->
-          </div>
+        <!-- Gemini Box -->
+        <div class="gemini-box">
+            <div class="gemini-content">
+                <div class="ai-icon">✦</div>
+                <div>
+                    <h3 style="margin:0; background: var(--gemini-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Gemini Backward Intelligence</h3>
+                    <p style="margin:5px 0 0 0; color: #475569;">The <strong>14-day delay</strong> in "Production Release" was traced back to a 5-day stall in "API Integration." This was compounded by a failure in "Legacy Sync" on Oct 12th.</p>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- Detailed Analysis Table -->
-      <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-top: 2rem;">
-        <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
-          <h2 class="card-title" style="margin:0">Detailed Task Analysis</h2>
+        <div class="grid">
+            <!-- Left: Timeline -->
+            <div class="card" style="grid-column: span 8;">
+                <div class="card-header" style="color: var(--red-600)">Delay Timeline (Baseline vs Actual)</div>
+                <div class="card-body"><canvas id="rcaChart" height="120"></canvas></div>
+            </div>
+
+            <!-- Right: Root Causes -->
+            <div class="card" style="grid-column: span 4;">
+                <div class="card-header">Top Delay Drivers</div>
+                <div class="card-body">
+                    <div class="rca-item">
+                        <strong>API Documentation</strong><br><small>+6 Days (Primary Source)</small>
+                    </div>
+                    <div class="rca-item" style="border-left-color: #f59e0b; background: #fffbeb;">
+                        <strong>Third Party Latency</strong><br><small>+4 Days (Secondary Source)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom: Task Analysis -->
+            <div class="card" style="grid-column: span 12;">
+                <div class="card-header">Detailed Backward Task Tracing</div>
+                <table>
+                    <thead>
+                        <tr><th>Stage</th><th>Baseline</th><th>Actual</th><th>Variance</th><th>Source Cause</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Design Phase</td><td>10d</td><td>12d</td><td style="color:red">+2d</td><td>Scope Creep</td></tr>
+                        <tr><td>Development</td><td>20d</td><td>28d</td><td style="color:red">+8d</td><td>Resource Bottleneck</td></tr>
+                        <tr><td>QA Testing</td><td>5d</td><td>9d</td><td style="color:red">+4d</td><td>Logic Refactoring</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="card-body" id="taskAnalysis">
-            <p>Loading analysis data...</p>
-        </div>
-      </div>
     </div>
-  </main>
 
-  <footer>
-    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
-    &copy; 2024 Corporate Productivity Analytics
-  </footer>
-
-  <script>
-    // Mock Data and Logic (Previously in analysis.js/data.js)
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        // 1. Initialize Root Causes
-        const rootCausesDiv = document.getElementById('rootCauses');
-        const causes = [
-            "Resource Bottleneck (Dev Team)",
-            "Scope Creep in Sprint 3",
-            "API Documentation Latency",
-            "Third-party Auth Failure"
-        ];
-        rootCausesDiv.innerHTML = causes.map(c => `<span class="cause-tag">${c}</span>`).join('');
-
-        // 2. Initialize Table Analysis
-        const taskAnalysisDiv = document.getElementById('taskAnalysis');
-        taskAnalysisDiv.innerHTML = `
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="text-align: left; border-bottom: 2px solid var(--slate-200);">
-                        <th style="padding: 10px;">Task</th>
-                        <th style="padding: 10px;">Expected</th>
-                        <th style="padding: 10px;">Actual</th>
-                        <th style="padding: 10px; color: red;">Variance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td style="padding: 10px;">UI Design</td><td>5d</td><td>7d</td><td>+2d</td></tr>
-                    <tr><td style="padding: 10px;">Backend Integration</td><td>10d</td><td>15d</td><td>+5d</td></tr>
-                    <tr><td style="padding: 10px;">QA Testing</td><td>4d</td><td>8d</td><td>+4d</td></tr>
-                </tbody>
-            </table>
-        `;
-
-        // 3. Initialize Chart
-        const ctx = document.getElementById('delayChart').getContext('2d');
+    <script>
+        const ctx = document.getElementById('rcaChart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4'],
-                datasets: [{
-                    label: 'Delay in Days',
-                    data: [2, 5, 8, 3],
-                    backgroundColor: '#ef4444',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } }
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                datasets: [{ label: 'Baseline', data: [2, 5, 8, 12, 15], borderColor: '#cbd5e1', borderDash: [5,5] },
+                           { label: 'Actual Delay', data: [2, 7, 13, 22, 29], borderColor: '#dc2626', borderWidth: 3 }]
             }
         });
-    });
-  </script>
+    </script>
 </body>
 </html>
