@@ -107,163 +107,294 @@ function renderAnalysis() {
     (1000 * 60 * 60 * 24)
   );
   
-  // Update header
-  document.getElementById('projectName').textContent = analysisProject.name;
-  document.getElementById('totalDelayDays').textContent = totalDelayDays;
+  // Render analysis header
+  const headerHtml = `
+    <div style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+      <h1 id="projectName" style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem;">${escapeHtml(analysisProject.name)}</h1>
+      <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+        <div>
+          <span style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Total Delay</span>
+          <div style="font-size: 2.5rem; font-weight: 800; color: #dc2626;"><span id="totalDelayDays">${totalDelayDays}</span> days</div>
+        </div>
+        <div>
+          <span style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Status</span>
+          <div style="font-size: 1.25rem; font-weight: 700; color: #dc2626;">${escapeHtml(analysisProject.status)}</div>
+        </div>
+        <div>
+          <span style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Department</span>
+          <div style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">${escapeHtml(analysisProject.department)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('analysisHeader').innerHTML = headerHtml;
   
-  // Render trace chain
-  renderTraceChain();
+  // Render timeline visualization
+  renderTimelineViz();
   
-  // Render executive brief
-  renderExecutiveBrief(rootCause, totalDelayDays);
+  // Render root causes
+  renderRootCausesViz(rootCause);
   
-  // Render recommendations
-  renderRecommendations(rootCause, totalDelayDays);
-  
-  // Render AI plan if exists
-  if (aiPlan) {
-    renderAIPlan();
-  }
+  // Render task analysis
+  renderTaskAnalysis();
 }
 
-function renderTraceChain() {
-  const container = document.getElementById('traceChain');
+function renderTimelineViz() {
+  const container = document.getElementById('timelineViz');
   
-  container.innerHTML = traceNodes.map((node, index) => {
-    const rootClass = node.isRootCause ? 'bg-red-600 animate-pulse' : 'bg-amber-500';
-    const cardClass = node.isRootCause ? 'bg-red-50/50 border-red-200 ring-4 ring-red-100/50' : 'bg-white border-slate-200';
+  const html = traceNodes.map((node, index) => {
+    const rootClass = node.isRootCause ? 'background: #fee2e2; border-left: 4px solid #dc2626;' : 'background: #fef3c7; border-left: 4px solid #f59e0b;';
     
     return `
-      <div class="relative group animate-slideRight" style="animation-delay: ${index * 100}ms;">
-        <div class="absolute -left-[3.25rem] top-1.5 w-10 h-10 rounded-2xl border-4 border-white shadow-lg z-10 flex items-center justify-center transition-transform group-hover:scale-110 ${rootClass}">
-          ${node.isRootCause ? `
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          ` : `
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-          `}
+      <div style="${rootClass} padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+          <div style="flex: 1;">
+            <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.25rem;">${escapeHtml(node.task.name)}</div>
+            <div style="font-size: 0.875rem; color: #64748b;">${escapeHtml(node.task.assignedDept)}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: #dc2626;">+${node.delayDays}d</div>
+            ${node.isRootCause ? '<div style="font-size: 0.75rem; color: #dc2626; font-weight: 700;">ROOT CAUSE</div>' : ''}
+          </div>
         </div>
-
-        <div class="p-6 rounded-2xl border transition-all duration-300 shadow-sm hover:shadow-md ${cardClass}">
-          <div class="flex justify-between items-start mb-4">
-            <div class="flex-1 mr-4">
-              ${node.isRootCause ? `
-                <span class="text-[10px] font-black text-red-600 uppercase tracking-[0.2em] bg-red-100 px-3 py-1 rounded-full mb-3 inline-block">
-                  Primary Failure Node
-                </span>
-              ` : ''}
-              <h3 class="font-black text-lg text-slate-900 leading-tight">${escapeHtml(node.task.name)}</h3>
-              <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">${escapeHtml(node.task.assignedDept)}</p>
-            </div>
-            <div class="text-right flex-shrink-0">
-              <span class="text-2xl font-black text-red-600">+${node.delayDays}d</span>
-              <p class="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-tighter">Variance</p>
-            </div>
-          </div>
-
-          <div class="bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-            <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Manager Attribution Note</p>
-            <p class="text-sm text-slate-700 leading-relaxed font-medium italic">
-              "${escapeHtml(node.task.delayReasonNote || 'System-detected cascade from parent blocker.')}"
-            </p>
-          </div>
+        <div style="font-size: 0.875rem; color: #475569; font-style: italic;">
+          "${escapeHtml(node.task.delayReasonNote || 'System-detected cascade from parent blocker.')}"
         </div>
       </div>
     `;
   }).join('');
+  
+  container.innerHTML = html || '<p style="color: #64748b;">No delay timeline available.</p>';
 }
 
-function renderExecutiveBrief(rootCause, totalDelayDays) {
-  document.getElementById('briefDelayDays').textContent = totalDelayDays;
-  document.getElementById('briefRootCause').textContent = rootCause ? rootCause.task.name : 'N/A';
-  document.getElementById('briefDepartment').textContent = rootCause ? rootCause.task.assignedDept : 'N/A';
-}
-
-function renderRecommendations(rootCause, totalDelayDays) {
-  if (!rootCause) return;
+function renderRootCausesViz(rootCause) {
+  const container = document.getElementById('rootCauses');
   
-  const recommendations = [
-    `Schedule ${rootCause.task.assignedDept} post-mortem session.`,
-    `Add ${Math.max(5, Math.ceil(totalDelayDays/2))}d buffer to '${rootCause.task.name}' in future templates.`,
-    `Investigate ${rootCause.task.delayReasonCategory} resource allocations.`
-  ];
+  if (!rootCause) {
+    container.innerHTML = '<p style="color: #64748b;">No root cause identified.</p>';
+    return;
+  }
   
-  const container = document.getElementById('recommendations');
-  container.innerHTML = recommendations.map((item, i) => `
-    <li class="flex items-start">
-      <div class="w-6 h-6 rounded-lg bg-blue-50 flex-shrink-0 flex items-center justify-center mr-3 mt-0.5">
-        <span class="text-[10px] font-black text-blue-600">${i + 1}</span>
+  const delayCategories = {};
+  analysisTasks.forEach(task => {
+    if (task.delayReasonCategory && task.delayReasonCategory !== 'None') {
+      delayCategories[task.delayReasonCategory] = (delayCategories[task.delayReasonCategory] || 0) + 1;
+    }
+  });
+  
+  const html = `
+    <div style="background: #fee2e2; padding: 1.5rem; border-radius: 12px; border: 2px solid #fecaca; margin-bottom: 1rem;">
+      <div style="font-size: 1.125rem; font-weight: 700; color: #991b1b; margin-bottom: 0.5rem;">Primary Root Cause</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #7f1d1d; margin-bottom: 0.5rem;">${escapeHtml(rootCause.task.name)}</div>
+      <div style="color: #991b1b; margin-bottom: 0.75rem;">${escapeHtml(rootCause.task.assignedDept)} • ${escapeHtml(rootCause.task.delayReasonCategory)}</div>
+      <div style="background: white; padding: 1rem; border-radius: 8px; font-size: 0.875rem; color: #7f1d1d; font-style: italic;">
+        "${escapeHtml(rootCause.task.delayReasonNote || 'No specific reason provided.')}"
       </div>
-      <span class="text-sm font-semibold text-slate-600 leading-tight">${escapeHtml(item)}</span>
-    </li>
-  `).join('');
+    </div>
+    
+    <div style="font-weight: 700; color: #1e293b; margin-bottom: 0.75rem;">Delay Categories Distribution</div>
+    ${Object.entries(delayCategories).map(([category, count]) => `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8fafc; border-radius: 8px; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.875rem; color: #475569;">${escapeHtml(category)}</span>
+        <span style="font-weight: 700; color: #1e293b;">${count} task${count > 1 ? 's' : ''}</span>
+      </div>
+    `).join('')}
+  `;
+  
+  container.innerHTML = html;
 }
 
-function renderAIPlan() {
-  if (!aiPlan) return;
+function renderTaskAnalysis() {
+  const container = document.getElementById('taskAnalysis');
   
-  const container = document.getElementById('aiPlanContainer');
-  container.style.display = 'block';
-  container.classList.add('animate-fadeIn');
+  const html = `
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Task Name</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Department</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Status</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Planned End</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Actual End</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Delay Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${analysisTasks.map(task => {
+            const isDelayed = task.actualEndDate && new Date(task.actualEndDate) > new Date(task.plannedEndDate);
+            const rowStyle = isDelayed ? 'background: #fef2f2;' : '';
+            
+            return `
+              <tr style="${rowStyle} border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 0.75rem; font-weight: 600; color: #1e293b;">${escapeHtml(task.name)}</td>
+                <td style="padding: 0.75rem; color: #64748b; font-size: 0.875rem;">${escapeHtml(task.assignedDept)}</td>
+                <td style="padding: 0.75rem;">
+                  <span style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; ${
+                    task.status === 'Completed' ? 'background: #dcfce7; color: #166534;' :
+                    task.status === 'In Progress' ? 'background: #dbeafe; color: #1e40af;' :
+                    task.status === 'Overdue' ? 'background: #fee2e2; color: #991b1b;' :
+                    'background: #f1f5f9; color: #475569;'
+                  }">
+                    ${escapeHtml(task.status)}
+                  </span>
+                </td>
+                <td style="padding: 0.75rem; color: #64748b; font-size: 0.875rem;">${task.plannedEndDate}</td>
+                <td style="padding: 0.75rem; color: ${isDelayed ? '#dc2626' : '#64748b'}; font-size: 0.875rem; font-weight: ${isDelayed ? '700' : '400'};">
+                  ${task.actualEndDate || 'Pending'}
+                </td>
+                <td style="padding: 0.75rem; color: #64748b; font-size: 0.875rem;">
+                  ${task.delayReasonCategory && task.delayReasonCategory !== 'None' ? escapeHtml(task.delayReasonCategory) : '-'}
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
   
-  document.getElementById('aiAnalysis').textContent = aiPlan.analysis;
-  
-  const stepsContainer = document.getElementById('aiSteps');
-  stepsContainer.innerHTML = aiPlan.steps.map((step, idx) => `
-    <li class="flex items-start text-sm">
-      <span class="text-indigo-400 font-bold mr-2">${idx + 1}.</span>
-      <span>${escapeHtml(step)}</span>
-    </li>
-  `).join('');
-  
-  document.getElementById('aiRiskMitigation').textContent = aiPlan.riskMitigation;
+  container.innerHTML = html;
 }
 
-async function generateAIRecoveryPlan() {
-  const rootCause = traceNodes.find(t => t.isRootCause);
-  if (!rootCause) return;
+function showGeminiSummary() {
+  const modal = document.getElementById('geminiModal');
+  modal.style.display = 'flex';
   
+  // Show loading
+  document.getElementById('geminiLoading').style.display = 'block';
+  document.getElementById('geminiContent').style.display = 'none';
+  
+  // Simulate AI processing
+  setTimeout(() => {
+    generateGeminiSummary();
+  }, 1500);
+}
+
+function closeGeminiModal() {
+  document.getElementById('geminiModal').style.display = 'none';
+}
+
+function generateGeminiSummary() {
   const totalDelayDays = Math.ceil(
     (new Date(analysisProject.actualEndDate).getTime() - new Date(analysisProject.plannedEndDate).getTime()) / 
     (1000 * 60 * 60 * 24)
   );
   
-  const btn = document.getElementById('generateAIBtn');
-  const btnText = document.getElementById('generateAIBtnText');
-  const spinner = document.getElementById('generateAISpinner');
+  const rootCause = traceNodes.find(t => t.isRootCause);
+  const delayedTasks = analysisTasks.filter(t => t.actualEndDate && new Date(t.actualEndDate) > new Date(t.plannedEndDate));
   
-  btn.disabled = true;
-  btnText.textContent = aiPlan ? 'Refresh AI Strategy' : 'Generate AI Recovery Plan';
-  spinner.style.display = 'block';
+  // Generate overview
+  const overviewHtml = `
+    <p style="margin: 0;"><strong>Project:</strong> ${escapeHtml(analysisProject.name)}</p>
+    <p style="margin: 0.5rem 0 0 0;"><strong>Total Delay:</strong> ${totalDelayDays} days beyond planned completion</p>
+    <p style="margin: 0.5rem 0 0 0;"><strong>Affected Tasks:</strong> ${delayedTasks.length} out of ${analysisTasks.length} tasks experienced delays</p>
+  `;
+  document.getElementById('geminiOverview').innerHTML = overviewHtml;
   
-  try {
-    // Note: This would require actual Gemini API integration
-    // For demo purposes, we'll simulate the response
-    await new Promise(resolve => setTimeout(resolve, 2000));
+  // Generate problems list
+  const problemsHtml = delayedTasks.map((task, index) => {
+    const delayDays = Math.ceil(
+      (new Date(task.actualEndDate).getTime() - new Date(task.plannedEndDate).getTime()) / 
+      (1000 * 60 * 60 * 24)
+    );
     
-    aiPlan = {
-      analysis: `The ${totalDelayDays}-day delay in ${analysisProject.name} originated from ${rootCause.task.assignedDept}'s ${rootCause.task.name} task. The primary cause was ${rootCause.task.delayReasonCategory}, which cascaded through dependent tasks.`,
-      steps: [
-        'Conduct immediate stakeholder review meeting',
-        'Reallocate resources to critical path tasks',
-        'Implement daily standup for remaining deliverables',
-        'Add buffer time to similar future projects'
-      ],
-      riskMitigation: 'Establish early warning system for resource constraints and implement cross-training program to reduce single points of failure.'
-    };
+    return `
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem;">
+        <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.5rem;">
+          <div style="flex: 1;">
+            <div style="font-weight: 700; color: #991b1b; margin-bottom: 0.25rem;">Problem ${index + 1}: ${escapeHtml(task.name)}</div>
+            <div style="font-size: 0.875rem; color: #7f1d1d;">Department: ${escapeHtml(task.assignedDept)}</div>
+          </div>
+          <div style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; margin-left: 1rem;">
+            +${delayDays} days
+          </div>
+        </div>
+        <div style="font-size: 0.875rem; color: #7f1d1d; margin-top: 0.5rem;">
+          <strong>Planned:</strong> ${task.plannedEndDate} → <strong>Actual:</strong> ${task.actualEndDate}
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('geminiProblems').innerHTML = problemsHtml;
+  
+  // Generate causes analysis
+  const causesHtml = delayedTasks.map((task, index) => {
+    return `
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem;">
+        <div style="font-weight: 700; color: #1e40af; margin-bottom: 0.5rem;">${escapeHtml(task.name)}</div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">
+            ${escapeHtml(task.delayReasonCategory || 'Unspecified')}
+          </span>
+          ${task.isRootCause ? '<span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">ROOT CAUSE</span>' : ''}
+        </div>
+        <div style="font-size: 0.875rem; color: #1e3a8a; font-style: italic;">
+          "${escapeHtml(task.delayReasonNote || 'No specific cause documented.')}"
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('geminiCauses').innerHTML = causesHtml;
+  
+  // Generate delays breakdown
+  const delaysHtml = delayedTasks.map((task, index) => {
+    const delayDays = Math.ceil(
+      (new Date(task.actualEndDate).getTime() - new Date(task.plannedEndDate).getTime()) / 
+      (1000 * 60 * 60 * 24)
+    );
+    const delayPercentage = Math.round((delayDays / totalDelayDays) * 100);
     
-    renderAIPlan();
-    btnText.textContent = 'Refresh AI Strategy';
-  } catch (error) {
-    console.error('AI Generation failed', error);
-    alert('Failed to generate AI recovery plan. Please try again.');
-  } finally {
-    btn.disabled = false;
-    spinner.style.display = 'none';
-  }
+    return `
+      <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <div>
+            <div style="font-weight: 700; color: #92400e;">${escapeHtml(task.name)}</div>
+            <div style="font-size: 0.875rem; color: #78350f;">${escapeHtml(task.assignedDept)}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: #92400e;">${delayDays}d</div>
+            <div style="font-size: 0.75rem; color: #78350f;">${delayPercentage}% of total</div>
+          </div>
+        </div>
+        <div style="background: #fef3c7; height: 8px; border-radius: 4px; overflow: hidden;">
+          <div style="background: #f59e0b; height: 100%; width: ${delayPercentage}%;"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('geminiDelays').innerHTML = delaysHtml;
+  
+  // Generate recommendations
+  const recommendationsHtml = `
+    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.5rem; list-style: none;">
+      <li style="margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem;">
+        <span style="position: absolute; left: 0; color: #1e40af; font-weight: 700;">1.</span>
+        Schedule immediate post-mortem with ${rootCause ? rootCause.task.assignedDept : 'affected departments'} to document lessons learned
+      </li>
+      <li style="margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem;">
+        <span style="position: absolute; left: 0; color: #1e40af; font-weight: 700;">2.</span>
+        Add ${Math.max(5, Math.ceil(totalDelayDays/2))} day buffer to similar tasks in future project templates
+      </li>
+      <li style="margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem;">
+        <span style="position: absolute; left: 0; color: #1e40af; font-weight: 700;">3.</span>
+        Implement early warning system for ${rootCause ? rootCause.task.delayReasonCategory : 'resource constraints'}
+      </li>
+      <li style="margin-bottom: 0.5rem; position: relative; padding-left: 1.5rem;">
+        <span style="position: absolute; left: 0; color: #1e40af; font-weight: 700;">4.</span>
+        Consider cross-training team members to reduce single points of failure
+      </li>
+      <li style="position: relative; padding-left: 1.5rem;">
+        <span style="position: absolute; left: 0; color: #1e40af; font-weight: 700;">5.</span>
+        Establish daily standups for remaining critical path tasks
+      </li>
+    </ul>
+  `;
+  document.getElementById('geminiRecommendations').innerHTML = recommendationsHtml;
+  
+  // Hide loading and show content
+  document.getElementById('geminiLoading').style.display = 'none';
+  document.getElementById('geminiContent').style.display = 'block';
 }
 
 function goBack() {
