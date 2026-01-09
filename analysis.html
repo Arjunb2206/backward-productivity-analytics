@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Root Cause Analysis - Backward Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="animations.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
+  <nav></nav>
+
+  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%;">
+    <div class="space-y-8 animate-fadeIn">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <button onclick="history.back()" class="btn btn-secondary">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Back
+        </button>
+      </div>
+
+      <div id="analysisHeader"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+            <h2 class="card-title" style="color: var(--red-800);">Delay Timeline</h2>
+          </div>
+          <div class="card-body" id="timelineViz"></div>
+        </div>
+
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-header" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+            <h2 class="card-title" style="color: var(--red-800);">Root Causes</h2>
+          </div>
+          <div class="card-body" id="rootCauses"></div>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+          <h2 class="card-title">Detailed Task Analysis</h2>
+        </div>
+        <div class="card-body" id="taskAnalysis"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
+    &copy; 2024 Corporate Productivity Analytics
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script src="analysis.js"></script>
+</body>
+</html>
