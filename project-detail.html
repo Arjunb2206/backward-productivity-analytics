@@ -1,100 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Details - Backward Analytics</title>
-    <style>
-        :root {
-            --slate-50: #f8fafc; --slate-200: #e2e8f0; --slate-800: #1e293b;
-            --blue-600: #2563eb; --green-600: #16a34a;
-            --gemini-gradient: linear-gradient(135deg, #4285f4 0%, #9b51e0 50%, #e91e63 100%);
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--slate-50); margin: 0; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-        
-        .gemini-box { background: var(--gemini-gradient); border-radius: 12px; padding: 2px; margin-bottom: 2rem; }
-        .gemini-content { background: white; padding: 1.5rem; border-radius: 10px; display: flex; gap: 1rem; align-items: center; }
-        
-        .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
-        .card { background: white; border-radius: 12px; border: 1px solid var(--slate-200); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--slate-200); font-weight: bold; background: #f8fafc; }
-        .card-body { padding: 1.5rem; }
-
-        .status-pill { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: bold; }
-        .status-progress { background: #dbeafe; color: #1e40af; }
-
-        .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { height: 100%; background: var(--blue-600); }
-        .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: var(--slate-800); color: white; cursor: pointer; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Details - Backward Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="components.css">
+  <link rel="stylesheet" href="animations.css">
 </head>
-<body>
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <button onclick="location.href='analysis.html'" style="background:none; border: 1px solid #ccc; padding: 8px 15px; border-radius: 5px; cursor:pointer;">← To Root Cause Analysis</button>
-            <div style="text-align: right;">
-                <h1 style="margin:0; font-size: 1.5rem;">Project Alpha: Cloud Infrastructure</h1>
-                <span class="status-pill status-progress">IN PROGRESS</span>
+<body style="display: flex; flex-direction: column; min-height: 100vh; background-color: var(--slate-50);">
+  <nav></nav>
+
+  <main style="flex: 1; max-width: 1400px; margin: 0 auto; padding: 2.5rem 1.5rem; width: 100%;">
+    <div class="space-y-8 animate-fadeIn">
+      <!-- Header Section -->
+      <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
+        <div style="flex: 1; min-width: 300px;">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+            <button onclick="goBack()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">
+              <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back
+            </button>
+            <h1 id="projectName" style="font-size: 2rem; font-weight: 800; color: #1e293b; margin: 0;">Project Name</h1>
+          </div>
+          <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+            <span id="projectStatus" class="badge">Status</span>
+            <span id="projectId" style="font-size: 0.875rem; color: #64748b;">Project ID</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button id="analyzeBtn" onclick="goToAnalysis()" class="btn" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); display: none;">
+            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Root Cause Analysis
+          </button>
+          <button id="addTaskBtn" class="btn btn-secondary">
+            <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Task
+          </button>
+        </div>
+      </div>
+
+      <!-- Project Summary Card -->
+      <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+          <h2 class="card-title">Project Overview</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Description</div>
+              <p id="projectDescription" style="color: #1e293b; line-height: 1.6; margin: 0;"></p>
             </div>
+            <div>
+              <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Planned End Date</div>
+              <p id="projectPlannedEnd" style="color: #1e293b; font-weight: 600; font-size: 1.125rem; margin: 0;"></p>
+            </div>
+            <div>
+              <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Actual End Date</div>
+              <p id="projectActualEnd" style="font-weight: 600; font-size: 1.125rem; margin: 0;"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem;">Completion Rate</div>
+            <div id="completionRate" style="font-size: 3rem; font-weight: 800; color: #2563eb; margin-bottom: 0.5rem;">0%</div>
+            <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+              <div id="progressBar" style="background: #2563eb; height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+            </div>
+            <p id="completionText" style="font-size: 0.875rem; color: #64748b; margin: 0;"></p>
+          </div>
         </div>
 
-        <!-- Gemini Insight Box -->
-        <div class="gemini-box">
-            <div class="gemini-content">
-                <div style="font-size: 24px;">✨</div>
-                <div>
-                    <h3 style="margin:0; color: #1e293b;">Gemini Predictive Summary</h3>
-                    <p style="margin:5px 0 0 0; color: #64748b;">Current velocity is 1.2x. If the "Frontend Bridge" starts by tomorrow, you will recover 3 days of the existing delay. <strong>Recommended Action:</strong> Approve overtime for QA team.</p>
-                </div>
-            </div>
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem;">Department</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;" id="projectDepartment"></div>
+            <div style="font-size: 0.875rem; color: #64748b;">Primary Owner</div>
+          </div>
         </div>
 
-        <div class="grid">
-            <!-- Main Content -->
-            <div class="card" style="grid-column: span 8;">
-                <div class="card-header">Task Breakdown & Ownership</div>
-                <div class="card-body">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 15px 0;"><strong>Cloud Security Setup</strong><br><small>Lead: Sarah Connor</small></td>
-                            <td style="text-align: right;"><span class="status-pill" style="background:#dcfce7; color:#166534">COMPLETED</span></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 15px 0;"><strong>Multi-region Load Balancing</strong><br><small>Lead: James Smith</small></td>
-                            <td style="text-align: right;"><span class="status-pill status-progress">IN PROGRESS</span></td>
-                        </tr>
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 15px 0;"><strong>PostgreSQL Migration</strong><br><small>Lead: Dave Miller</small></td>
-                            <td style="text-align: right;"><span class="status-pill" style="background:#fee2e2; color:#991b1b">DELAYED</span></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div style="grid-column: span 4;">
-                <div class="card" style="margin-bottom: 1.5rem;">
-                    <div class="card-header">Overall Progress</div>
-                    <div class="card-body">
-                        <div style="font-size: 2rem; font-weight: bold;">68%</div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 68%;"></div></div>
-                        <small style="color: #64748b;">32 of 48 tasks completed</small>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">Project Info</div>
-                    <div class="card-body" style="font-size: 0.9rem;">
-                        <div style="margin-bottom: 10px;"><strong>Manager:</strong> Michael Scott</div>
-                        <div style="margin-bottom: 10px;"><strong>Deadline:</strong> Dec 24, 2024</div>
-                        <div style="margin-bottom: 10px;"><strong>Budget:</strong> <span style="color:var(--green-600)">$120,000 / $150k</span></div>
-                        <button class="btn" style="width: 100%; margin-top: 10px;">Download Report</button>
-                    </div>
-                </div>
-            </div>
+        <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 0.875rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem;">Budget</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #16a34a; margin-bottom: 0.5rem;" id="projectBudget"></div>
+            <div style="font-size: 0.875rem; color: #64748b;">Allocated Funds</div>
+          </div>
         </div>
+      </div>
+
+      <!-- Task Table -->
+      <div class="card" style="box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <div class="card-header" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);">
+          <h2 class="card-title">Task Breakdown</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                  <th style="padding: 1rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Task Name</th>
+                  <th style="padding: 1rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Assigned Department</th>
+                  <th style="padding: 1rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Status</th>
+                  <th style="padding: 1rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Planned End</th>
+                  <th id="actionsHeader" style="padding: 1rem; text-align: left; font-weight: 700; color: #475569; font-size: 0.875rem;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody">
+                <!-- Tasks will be rendered here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
+  </main>
+
+  <!-- Complete Task Modal -->
+  <div id="completeModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+      <div style="padding: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b;">Complete Task</h3>
+      </div>
+      
+      <div style="padding: 1.5rem;">
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Task:</div>
+          <div id="modalTaskName" style="color: #64748b;"></div>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Completion Date</label>
+          <input type="date" id="completionDate" onchange="checkDelayStatus()" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+        </div>
+        
+        <div id="delaySection" style="display: none;">
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+            <div style="color: #991b1b; font-weight: 600; margin-bottom: 0.5rem;">⚠️ Task completed after planned date</div>
+            <div style="font-size: 0.875rem; color: #7f1d1d;">Please provide a reason for the delay.</div>
+          </div>
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Delay Reason Category</label>
+            <select id="delayReason" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem;">
+              <option value="None">Select a reason...</option>
+              <option value="Approval Delay">Approval Delay</option>
+              <option value="Resource Unavailable">Resource Unavailable</option>
+              <option value="Technical Difficulty">Technical Difficulty</option>
+              <option value="Scope Change">Scope Change</option>
+              <option value="Dependency Failure">Dependency Failure</option>
+              <option value="External Vendor Delay">External Vendor Delay</option>
+              <option value="Communication Gap">Communication Gap</option>
+            </select>
+          </div>
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">Additional Notes</label>
+            <textarea id="delayNote" rows="3" placeholder="Provide details about what caused the delay..." style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; resize: vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div style="padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.75rem; justify-content: flex-end;">
+        <button onclick="closeCompleteModal()" class="btn btn-secondary">Cancel</button>
+        <button onclick="submitCompletion()" class="btn">Complete Task</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    System Status: <span class="footer-status">● Live Engine Connected</span> &bull; 
+    &copy; 2024 Corporate Productivity Analytics
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="utils.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+  <script src="project-detail.js"></script>
 </body>
 </html>
-
