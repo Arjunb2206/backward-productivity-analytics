@@ -1,0 +1,5 @@
+
+{
+  "name": "Backward Productivity Analytics",
+  "description": "A root cause analysis tool that traces project delays backward through task dependencies to identify the original source of failure."
+}

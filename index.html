@@ -1,89 +1,61 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Backward Analytics</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="components.css">
-  <link rel="stylesheet" href="animations.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backward Productivity Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        .animate-scaleIn { animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slideRight { animation: slideRight 0.5s ease-out forwards; }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
 </head>
-<body>
-  <div class="min-h-screen" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; padding: 1rem;">
-    <div style="max-width: 28rem; width: 100%; background-color: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden;" class="animate-scaleIn">
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2.5rem; text-align: center;">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 5rem; height: 5rem; background-color: rgba(255, 255, 255, 0.2); border-radius: 1rem; margin-bottom: 1rem; backdrop-filter: blur(10px);">
-          <svg style="width: 3rem; height: 3rem; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-          </svg>
-        </div>
-        <h1 style="font-size: 2rem; font-weight: 800; color: white; letter-spacing: -0.025em;">Backward Analytics</h1>
-        <p style="color: rgba(255, 255, 255, 0.9); font-size: 0.875rem; margin-top: 0.5rem; font-weight: 500;">Root Cause Analysis System</p>
-      </div>
-      
-      <form id="loginForm" style="padding: 2.5rem;">
-        <div class="space-y-4">
-          <div class="form-group">
-            <label class="form-label">Email Address</label>
-            <input 
-              type="email" 
-              id="email"
-              required
-              class="form-input"
-              placeholder="name@company.com"
-              value="manager@company.com"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input 
-              type="password" 
-              id="password"
-              required
-              class="form-input"
-              placeholder="••••••••"
-              value="password"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Access Role</label>
-            <select id="role" class="form-select">
-              <option value="Admin">Administrator</option>
-              <option value="Department Manager" selected>Department Manager</option>
-              <option value="Viewer">Read-only Viewer</option>
-            </select>
-          </div>
-        </div>
-
-        <button 
-          type="submit"
-          class="btn btn-primary w-full mt-6"
-          style="padding: 0.875rem 1rem; font-size: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.5);"
-        >
-          Sign In to Dashboard
-        </button>
-
-        <div class="text-center mt-6">
-          <a href="#" style="font-size: 0.875rem; color: var(--slate-400); text-decoration: none; transition: color 0.3s;">Forgot password?</a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script src="data.js"></script>
-  <script src="utils.js"></script>
-  <script src="auth.js"></script>
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const role = document.getElementById('role').value;
-      
-      login(email, password, role);
-      window.location.href = 'dashboard.html';
-    });
-  </script>
+<body class="bg-[#f8fafc] text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>
